@@ -22,6 +22,11 @@ This mod is client side only.
 - Client side only
 - Scales with the GUI
 
+**FORK Features:**
+
+- Smoother display with rounded effect
+- The compass targets (spawn, death or anchor) are visible when the corresponding item is in invetory or held (See Configuration)
+
 **Configuration:**
 
 - Config file location: `<minecraft-base-folder>/config/waig.config`

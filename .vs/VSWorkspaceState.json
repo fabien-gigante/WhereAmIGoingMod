@@ -1,0 +1,14 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\main",
+    "\\src\\main\\java",
+    "\\src\\main\\java\\one",
+    "\\src\\main\\java\\one\\laqua",
+    "\\src\\main\\java\\one\\laqua\\waig",
+    "\\src\\main\\java\\one\\laqua\\waig\\client"
+  ],
+  "SelectedNode": "\\gradlew.bat",
+  "PreviewInSolutionExplorer": false
+}

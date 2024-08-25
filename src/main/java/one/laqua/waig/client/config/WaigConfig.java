@@ -44,8 +44,7 @@ public class WaigConfig {
             }
         }
 
-        try {
-            Scanner scanner = new Scanner(filePath);
+        try (Scanner scanner = new Scanner(filePath)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 if (line.strip().startsWith("#")) {
@@ -92,7 +91,8 @@ public class WaigConfig {
 
                                 Identifier itemIdentifier = Identifier.of(idPieces[0].strip(), idPieces[1].strip());
 
-                                // this will need updating on Minecraft versions >=1.19.3, see https://fabricmc.net/wiki/tutorial:registry
+                                // this will need updating on Minecraft versions >=1.19.3, see
+                                // https://fabricmc.net/wiki/tutorial:registry
                                 return Item.getRawId(Registries.ITEM.get(itemIdentifier));
                             })
                             .filter(item -> !item.equals(Item.getRawId(Items.AIR)))
@@ -100,7 +100,7 @@ public class WaigConfig {
                     if (!configItems.isEmpty()) {
                         WaigConfig.compassItems = configItems;
                     } else {
-                        WaigClient.log(Level.WARN, "The config key '" + KEY_COMPASS_ITEMS +  "' is present, " +
+                        WaigClient.log(Level.WARN, "The config key '" + KEY_COMPASS_ITEMS + "' is present, " +
                                 "but no values were configured. Defaulting to " + DEFAULT_COMPASS_ID + ".");
                     }
                 }
@@ -116,7 +116,7 @@ public class WaigConfig {
     public static boolean generateDefaultConfigFile() {
         Path filePath = Path.of(CONFIG_FILE);
         try {
-            Files.write(filePath, List.of(new String[]{
+            Files.write(filePath, List.of(new String[] {
                     "# WAIG config file",
                     "",
                     "# hud show mode, defaults to " + HudShowMode.ALWAYS.name().toLowerCase(),

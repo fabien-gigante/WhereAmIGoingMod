@@ -24,6 +24,7 @@ This mod is client side only.
 
 **FORK Features:**
 
+![Fork Image](screenshot-fork.png)
 - Smoother display with rounded effect
 - The compass targets (spawn, death or anchor) are visible when the corresponding item is in invetory or held (See Configuration)
 

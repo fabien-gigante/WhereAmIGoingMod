@@ -66,31 +66,30 @@ public class CompassHud implements HudRenderCallback {
 		}
 	}
 
-	private static float getYawTo(Entity entity, BlockPos pos) {
+	private static float getAngleTo(Entity entity, BlockPos pos) {
 		Vec3d vec3d = Vec3d.ofCenter(pos);
-		float yaw = (float) (Math.atan2(vec3d.getZ() - entity.getZ(), vec3d.getX() - entity.getX()) * 180 / Math.PI) - 90;
-		return (yaw % 360.0f + 360.0f) % 360.0f;
+		return (float) (Math.atan2(vec3d.getZ() - entity.getZ(), vec3d.getX() - entity.getX()) * 180 / Math.PI) - 90;
 	}
 
 	private static void addMarker(List<Marker> markers, Entity entity, Optional<GlobalPos> pos, Marker type) {
 		if (pos.isPresent() && pos.get().dimension() == entity.getWorld().getRegistryKey())
-			markers.add(type.at(getYawTo(entity, pos.get().pos())));
+			markers.add(type.at(getAngleTo(entity, pos.get().pos())));
 	}
 
-	private List<Marker>  getTargetMarkers() {
-		ClientPlayerEntity player = client.player;
+	private List<Marker> getTargetMarkers() {
 		List<Marker> markers = new ArrayList<Marker>();
+		ClientPlayerEntity player = client.player;
 		Stream<ItemStack> items = getItemsToCheck(player);
 		if (items == null) return markers;
 		List<ItemStack> matched = items.filter(item -> compass_stacks.contains(Item.getRawId(item.getItem()))).toList();
-		if (matched.isEmpty()) return markers;
+		if (matched.isEmpty()) return null;
 		if (compass_stacks.contains(Item.getRawId(Items.COMPASS)))
 			matched.stream().filter(item -> item.getItem() instanceof CompassItem).forEach(compass -> {
 				if (compass.contains(DataComponentTypes.LODESTONE_TRACKER)) {
 					LodestoneTrackerComponent tracker = compass.get(DataComponentTypes.LODESTONE_TRACKER);
 					if (tracker.tracked()) addMarker(markers, player, tracker.target(), Marker.LODESTONE);
 				} else
-					markers.add(Marker.SPAWN.at(getYawTo(player, player.getWorld().getSpawnPos())));
+					markers.add(Marker.SPAWN.at(getAngleTo(player, player.getWorld().getSpawnPos())));
 			});
 		if (compass_stacks.contains(Item.getRawId(Items.RECOVERY_COMPASS)))
 			if (matched.stream().anyMatch(item -> item.getItem() == Items.RECOVERY_COMPASS))
@@ -101,15 +100,17 @@ public class CompassHud implements HudRenderCallback {
 	@Override
 	public void onHudRender(DrawContext drawContext, RenderTickCounter renderTickCounter) {
 		if (!visible || client.options.hudHidden || client.player == null) return;
+		List<Marker> markers =  getTargetMarkers();
+		if (markers == null) return;
 		int bossBarCount = ((BossBarHudAccessor) client.inGameHud.getBossBarHud()).getBossBars().size();
 		int posY = 3 + bossBarCount * 19;
-		for (Marker marker : Marker.HATCH_MARKS)    drawMarker(drawContext, posY, marker);
-		for (Marker marker : Marker.CARDINAL_MARKS) drawMarker(drawContext, posY, marker);
-		for (Marker marker : getTargetMarkers())    drawMarker(drawContext, posY, marker);
+		for (Marker marker : Marker.HATCH_MARKS)	drawMarker(drawContext, posY, marker);
+		for (Marker marker : Marker.CARDINAL_MARKS)	drawMarker(drawContext, posY, marker);
+		for (Marker marker : markers)				drawMarker(drawContext, posY, marker);
 	}
 
 	private void drawMarker(DrawContext drawContext, int y, Marker m) {
-		float modAngle = (m.yaw - client.player.headYaw + 540.0f) % 360.0f - 180.0f;
+		float modAngle = ((m.yaw - client.player.headYaw) % 360.0f + 540.0f) % 360.0f - 180.0f;
 		float fov = client.options.getFov().getValue(); // float fov = DEFAULT_FOV;
 		if (modAngle < -fov || modAngle > +fov) return;
 		int screenWidth = client.getWindow().getScaledWidth();

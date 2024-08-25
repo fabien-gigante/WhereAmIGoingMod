@@ -31,6 +31,7 @@ import java.util.stream.IntStream;
 @Environment(EnvType.CLIENT)
 public class CompassHud implements HudRenderCallback {
 
+    @SuppressWarnings("unused")
     private static final float DEFAULT_FOV = 70f;
     private static final float SCALE = 100f;
 

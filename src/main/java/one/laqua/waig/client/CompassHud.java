@@ -66,13 +66,13 @@ public class CompassHud implements HudRenderCallback {
 		}
 	}
 
-	private float getYawTo(Entity entity, BlockPos pos) {
+	private static float getYawTo(Entity entity, BlockPos pos) {
 		Vec3d vec3d = Vec3d.ofCenter(pos);
 		float yaw = (float) (Math.atan2(vec3d.getZ() - entity.getZ(), vec3d.getX() - entity.getX()) * 180 / Math.PI) - 90;
 		return (yaw % 360.0f + 360.0f) % 360.0f;
 	}
 
-	private void addMarker(List<Marker> markers, Entity entity, Optional<GlobalPos> pos, Marker type) {
+	private static void addMarker(List<Marker> markers, Entity entity, Optional<GlobalPos> pos, Marker type) {
 		if (pos.isPresent() && pos.get().dimension() == entity.getWorld().getRegistryKey())
 			markers.add(type.at(getYawTo(entity, pos.get().pos())));
 	}

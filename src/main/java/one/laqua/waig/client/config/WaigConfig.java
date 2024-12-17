@@ -23,10 +23,10 @@ public class WaigConfig {
 
     private static final String KEY_HUD_SHOW_MODE = "hud-show-mode";
     private static final String KEY_COMPASS_ITEMS = "compass-items";
-    private static final String DEFAULT_COMPASS_ID = "minecraft:compass";
+    private static final String DEFAULT_COMPASS_ID = "minecraft:compass, minecraft:recovery_compass";
 
     private static HudShowMode hudShowMode = HudShowMode.ALWAYS;
-    private static Set<Integer> compassItems = Set.of(Item.getRawId(Items.COMPASS));
+    private static Set<Integer> compassItems = Set.of(Item.getRawId(Items.COMPASS), Item.getRawId(Items.RECOVERY_COMPASS));
 
     public static HudShowMode getHudShowMode() {
         return hudShowMode;

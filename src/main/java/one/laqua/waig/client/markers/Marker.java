@@ -59,7 +59,7 @@ public abstract class Marker {
 }
 
 class HatchMark extends Marker {
-    protected boolean large;
+    protected final boolean large;
     HatchMark(float yaw, boolean large) { super(0x80d0d0d0, yaw); this.large = large; }
     public void draw(DrawContext ctx, int x, int y) {
         drawVerticalLineWithShadow(ctx, x, y + (large ? 2 : 4), y + 7, color);

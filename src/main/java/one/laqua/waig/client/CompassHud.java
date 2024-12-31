@@ -36,7 +36,7 @@ import one.laqua.waig.client.markers.*;
 public class CompassHud implements HudRenderCallback {
 
 	private static final MinecraftClient client = MinecraftClient.getInstance();
-	private final Set<Integer> compass_stacks = WaigConfig.getCompassItems();
+	private final Set<Item> compass_stacks = WaigConfig.getCompassItems();
 
 	private static boolean visible = true;
 
@@ -64,10 +64,10 @@ public class CompassHud implements HudRenderCallback {
 		ClientPlayerEntity player = client.player;
 		Stream<ItemStack> items = getItemsToCheck(player);
 		if (items == null) return markers;
-		List<ItemStack> matched = items.filter(item -> compass_stacks.contains(Item.getRawId(item.getItem()))).toList();
+		List<ItemStack> matched = items.filter(item -> compass_stacks.contains(item.getItem())).toList();
 		if (matched.isEmpty()) return null;
 		if (WaigConfig.getHudPoIMode() == HudPoIMode.HIDDEN) return markers;
-		if (compass_stacks.contains(Item.getRawId(Items.COMPASS)))
+		if (compass_stacks.contains(Items.COMPASS))
 			matched.stream().filter(item -> item.getItem() instanceof CompassItem).forEach(compass -> {
 				if (compass.contains(DataComponentTypes.LODESTONE_TRACKER)) {
 					LodestoneTrackerComponent tracker = compass.get(DataComponentTypes.LODESTONE_TRACKER);
@@ -75,15 +75,15 @@ public class CompassHud implements HudRenderCallback {
 				} else
 					addMarker(markers, new SpawnMarker(), player, Optional.of(new GlobalPos(World.OVERWORLD, player.getWorld().getSpawnPos())));
 			});
-		if (compass_stacks.contains(Item.getRawId(Items.RECOVERY_COMPASS)))
+		if (compass_stacks.contains(Items.RECOVERY_COMPASS))
 			if (matched.stream().anyMatch(item -> item.getItem() == Items.RECOVERY_COMPASS))
 				addMarker(markers, new DeathMarker(), player, player.getLastDeathPos());
 
-		if (compass_stacks.contains(Item.getRawId(Items.FILLED_MAP)) && player.getWorld().getRegistryKey()==World.OVERWORLD)
+		if (compass_stacks.contains(Items.FILLED_MAP) && player.getWorld().getRegistryKey()==World.OVERWORLD)
 			matched.stream().filter(item -> item.getItem() instanceof FilledMapItem).forEach(map -> {
 				MapDecorationsComponent mapDecorationsComponent = map.getOrDefault(DataComponentTypes.MAP_DECORATIONS, MapDecorationsComponent.DEFAULT);
 				mapDecorationsComponent.decorations().forEach((id, decoration) -> {
-					addMarker(markers, new MapMarker(), player, new Vec3d(decoration.x(),0,decoration.z()));
+					addMarker(markers, new MapMarker(decoration.type()), player, new Vec3d(decoration.x(),0,decoration.z()));
 				}) ;
 			});
 		return markers;

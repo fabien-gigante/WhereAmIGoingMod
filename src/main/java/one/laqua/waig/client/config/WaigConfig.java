@@ -25,12 +25,12 @@ public class WaigConfig {
     private static final String KEY_HUD_SHOW_MODE = "hud-show-mode";
     private static final String KEY_HUD_POI_MODE = "hud-poi-mode";
     private static final String KEY_COMPASS_ITEMS = "compass-items";
-    private static final String DEFAULT_COMPASS_ID = "minecraft:compass, minecraft:recovery_compass";
+    private static final String DEFAULT_COMPASS_ID = "minecraft:compass, minecraft:recovery_compass, minecraft:filled_map";
 
     private static HudShowMode hudShowMode = HudShowMode.ALWAYS;
     private static HudPoIMode hudPoIMode = HudPoIMode.ICON;
 
-    private static Set<Integer> compassItems = Set.of(Item.getRawId(Items.COMPASS), Item.getRawId(Items.RECOVERY_COMPASS));
+    private static Set<Item> compassItems = Set.of(Items.COMPASS, Items.RECOVERY_COMPASS);
 
     public static HudShowMode getHudShowMode() {
         return hudShowMode;
@@ -40,7 +40,7 @@ public class WaigConfig {
         return hudPoIMode;
     }
 
-    public static Set<Integer> getCompassItems() {
+    public static Set<Item> getCompassItems() {
         return compassItems;
     }
 
@@ -87,7 +87,7 @@ public class WaigConfig {
 
                 if (key.equals(KEY_COMPASS_ITEMS)) {
                     String[] potentialItems = value.toLowerCase().split(",");
-                    Set<Integer> configItems = Arrays.stream(potentialItems)
+                    Set<Item> configItems = Arrays.stream(potentialItems)
                             .filter(potentialItemId -> potentialItemId.contains(":"))
                             .map(potentialItemId -> {
                                 String[] idPieces = potentialItemId.split(":");
@@ -100,16 +100,16 @@ public class WaigConfig {
                                     WaigClient.log(Level.ERROR, "The config value '" + potentialItemId + "' " +
                                             "contains illegal characters and cannot be parsed into an item. Please " +
                                             "check the config file for errors. Ignoring this value.");
-                                    return Item.getRawId(Items.AIR);
+                                    return Items.AIR;
                                 }
 
                                 Identifier itemIdentifier = Identifier.of(idPieces[0].strip(), idPieces[1].strip());
 
                                 // this will need updating on Minecraft versions >=1.19.3, see
                                 // https://fabricmc.net/wiki/tutorial:registry
-                                return Item.getRawId(Registries.ITEM.get(itemIdentifier));
+                                return Registries.ITEM.get(itemIdentifier);
                             })
-                            .filter(item -> !item.equals(Item.getRawId(Items.AIR)))
+                            .filter(item -> !item.equals(Items.AIR))
                             .collect(Collectors.toSet());
                     if (!configItems.isEmpty()) {
                         WaigConfig.compassItems = configItems;

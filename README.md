@@ -22,11 +22,12 @@ This mod is client side only.
 - Client side only
 - Scales with the GUI
 
-**FORK Features:**
+**FORK Additional Features:**
 
 ![Fork Image](screenshot-fork.png)
 - Smoother display with rounded effect, sync'ed with player's FoV
-- The compass targets (spawn, death or anchor) are visible when the corresponding item is in invetory or held (See Configuration)
+- The compass targets (spawn, death, anchor) or the map's points of interest are visible when the corresponding item is in invetory or held (see Configuration)
+- Distance to targets can optionnaly be shown (see Configuration)
 
 **Configuration:**
 
@@ -39,3 +40,10 @@ This mod is client side only.
 - `compass-items`: config key to list all items that count as compass equivalent. When `hud-show-mode` is set to
   `inventory` or `hand`, the mod checks if any of the listed items are in the inventory or held, and if so will show
   the HUD.
+
+**FORK Additional Configuration:**
+- `hud-poi-mode`: config key to control how targets and points of interest are shown (default: `icon`)
+  - if set to `hidden` they will not be shown on the compass HUD
+  - if set to `icon` they will appear has icons on the compass HUD
+  - if set to `distance` they will appear has icons on the compass HUD with a distance to target just below the icon
+- `compass-items`: now defaults to `minecraft:compass, minecraft:recovery_compass, minecraft:filled_map`

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,18 +23,40 @@ public class WaigConfig {
     private static final String CONFIG_FILE = "config/waig.config";
 
     private static final String KEY_HUD_SHOW_MODE = "hud-show-mode";
+    private static final String KEY_HUD_POI_MODE = "hud-poi-mode";
     private static final String KEY_COMPASS_ITEMS = "compass-items";
     private static final String DEFAULT_COMPASS_ID = "minecraft:compass, minecraft:recovery_compass";
 
     private static HudShowMode hudShowMode = HudShowMode.ALWAYS;
+    private static HudPoIMode hudPoIMode = HudPoIMode.ICON;
+
     private static Set<Integer> compassItems = Set.of(Item.getRawId(Items.COMPASS), Item.getRawId(Items.RECOVERY_COMPASS));
 
     public static HudShowMode getHudShowMode() {
         return hudShowMode;
     }
 
+    public static HudPoIMode getHudPoIMode() {
+        return hudPoIMode;
+    }
+
     public static Set<Integer> getCompassItems() {
         return compassItems;
+    }
+
+    private static <T extends Enum<T>> boolean readEnum(String input, String value, String key, T defaultValue, Consumer<T> func) {
+        if (!input.equals(key)) return true;
+        Class<T> enumClass = defaultValue.getDeclaringClass();
+        try {
+            func.accept(Enum.valueOf(enumClass, value.toUpperCase()));
+            return true;
+        } catch (IllegalArgumentException e) {
+            WaigClient.log(Level.ERROR, "The value '" + value + "' for config key '" + key + "' is invalid. " + 
+                "Possible values are: " + Arrays.toString(enumClass.getEnumConstants()).toLowerCase() + ". " +
+                "Falling back to default value '" + defaultValue.name().toLowerCase() + "'.");
+            func.accept(defaultValue);
+            return false;
+        }
     }
 
     public static boolean readConfigFile() {
@@ -57,22 +80,13 @@ public class WaigConfig {
                 }
 
                 String key = pieces[0].strip().toLowerCase();
+                String value = pieces[1].strip();
 
-                if (key.equals(KEY_HUD_SHOW_MODE)) {
-                    String value = pieces[1].strip().toUpperCase();
-                    try {
-                        WaigConfig.hudShowMode = HudShowMode.valueOf(value);
-                    } catch (IllegalArgumentException e) {
-                        WaigClient.log(Level.ERROR, "The value '" + pieces[1].strip() + "' for config key '"
-                                + KEY_HUD_SHOW_MODE + "' is invalid. Possible values are: "
-                                + Arrays.toString(HudShowMode.values()).toLowerCase() + ". Falling back to default " +
-                                "value '" + HudShowMode.ALWAYS.name().toLowerCase() + "'.");
-                        return false;
-                    }
-                }
+                readEnum(key, value, KEY_HUD_SHOW_MODE, HudShowMode.ALWAYS, x -> WaigConfig.hudShowMode = x);
+                readEnum(key, value, KEY_HUD_POI_MODE, HudPoIMode.ICON, x -> WaigConfig.hudPoIMode = x);
 
                 if (key.equals(KEY_COMPASS_ITEMS)) {
-                    String[] potentialItems = pieces[1].strip().toLowerCase().split(",");
+                    String[] potentialItems = value.toLowerCase().split(",");
                     Set<Integer> configItems = Arrays.stream(potentialItems)
                             .filter(potentialItemId -> potentialItemId.contains(":"))
                             .map(potentialItemId -> {
@@ -122,6 +136,10 @@ public class WaigConfig {
                     "# hud show mode, defaults to " + HudShowMode.ALWAYS.name().toLowerCase(),
                     "# possible values are: " + Arrays.toString(HudShowMode.values()).toLowerCase(),
                     KEY_HUD_SHOW_MODE + " = " + HudShowMode.ALWAYS.name().toLowerCase(),
+                    "",
+                    "# hud point of interest mode, defaults to " + HudPoIMode.ICON.name().toLowerCase(),
+                    "# possible values are: " + Arrays.toString(HudPoIMode.values()).toLowerCase(),
+                    KEY_HUD_POI_MODE + " = " + HudPoIMode.ICON.name().toLowerCase(),
                     "",
                     "# list of valid compass items, defaults to " + DEFAULT_COMPASS_ID,
                     "# use the namespaced identifiers of items and use a colon as a separator",

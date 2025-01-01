@@ -26,7 +26,7 @@ This mod is client side only.
 
 ![Fork Image](screenshot-fork.png)
 - Smoother display with rounded effect, sync'ed with player's FoV
-- The compass targets (spawn, death, anchor) or the map's points of interest are visible when the corresponding item is in invetory or held (see Configuration)
+- The compass targets (spawn, death, anchor) or the map's points of interest are visible when the corresponding item is in inventory or held (see Configuration)
 - Distance to targets can optionnaly be shown (see Configuration)
 
 **Configuration:**

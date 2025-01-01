@@ -10,16 +10,14 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.MathHelper;
-
+import one.laqua.waig.client.config.HudFoVMode;
 import one.laqua.waig.client.config.HudPoIMode;
 import one.laqua.waig.client.config.WaigConfig;
-
 
 public abstract class Marker {
     protected int color;
     protected float yaw = 0;
 
-	@SuppressWarnings("unused")
 	private static final float DEFAULT_FOV = 70f;
 	private static final float SCALE = 100f;
 
@@ -27,15 +25,17 @@ public abstract class Marker {
 
     Marker(int color) { this(color, 0); }
     Marker(int color, float yaw) { this.color = color; this.yaw = yaw; }
+
     public void draw(DrawContext ctx, int y)
     {
         float modAngle = MathHelper.subtractAngles(client.player.headYaw, yaw);
-        float fov = client.options.getFov().getValue(); // float fov = DEFAULT_FOV;
+        float fov = WaigConfig.getHudFoVMode() == HudFoVMode.PLAYER ? client.options.getFov().getValue() : DEFAULT_FOV;
         if (modAngle < -fov || modAngle > +fov) return;
         int screenWidth = client.getWindow().getScaledWidth();
         int x = Math.round(screenWidth / 2f + (float) Math.sin(modAngle * Math.PI / 180.0d) * SCALE);
         this.draw(ctx, x, y);
     }
+
     public Marker at(Entity entity, Vec3d pos) {
         Vec3d vec =  pos.subtract(entity.getPos());
         this.yaw = (float) (Math.atan2(vec.getZ(), vec.getX()) * MathHelper.DEGREES_PER_RADIAN) - 90;
@@ -44,13 +44,6 @@ public abstract class Marker {
     public Marker at(Entity entity, BlockPos pos) { return at(entity, Vec3d.ofCenter(pos)); }
     public abstract void draw(DrawContext ctx, int x, int y);
 
-    public static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, String text, int centerX, int y, int color) {
-        ctx.drawText(textRenderer, text, centerX - textRenderer.getWidth(text) / 2, y, color, false);
-    }	
-    public static void drawVerticalLineWithShadow(DrawContext ctx, int x, int y1, int y2, int color) {
-        ctx.drawVerticalLine(x + 1, y1 + 1, y2 + 1, color & 0xff000000);
-        ctx.drawVerticalLine(x, y1, y2, color);
-    }
     public static final List<Marker> HATCH_MARKS = IntStream.range(0, 64).filter(t -> t % 8 != 0)
             .mapToObj(t -> (Marker)new HatchMark(t * 360f / 64, t % 4 == 0)).toList();
     private static final String[] CARDINAL_TEXT = { "S", "SW", "W", "NW", "N", "NE", "E", "SE" };
@@ -61,6 +54,12 @@ public abstract class Marker {
 class HatchMark extends Marker {
     protected final boolean large;
     HatchMark(float yaw, boolean large) { super(0x80d0d0d0, yaw); this.large = large; }
+
+    protected static void drawVerticalLineWithShadow(DrawContext ctx, int x, int y1, int y2, int color) {
+        ctx.drawVerticalLine(x + 1, y1 + 1, y2 + 1, color & 0xff000000);
+        ctx.drawVerticalLine(x, y1, y2, color);
+    }
+
     public void draw(DrawContext ctx, int x, int y) {
         drawVerticalLineWithShadow(ctx, x, y + (large ? 2 : 4), y + 7, color);
     }
@@ -71,7 +70,7 @@ class TextMarker extends Marker {
     TextMarker(String text, int color) { this(text, color, 0);}
     TextMarker(String text, int color, float yaw) { super(color, yaw); this.text = text; }
     public void draw(DrawContext ctx, int x, int y) {
-        ctx.drawCenteredTextWithShadow(client.textRenderer, text, x, y, color);
+        if (text != null) ctx.drawCenteredTextWithShadow(client.textRenderer, text, x, y, color);
     }
 }
 
@@ -83,6 +82,11 @@ class DistanceMarker extends TextMarker {
         this.dist = (float) pos.subtract(entity.getPos()).horizontalLength();
         return this;
     }
+
+    protected static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, String text, int centerX, int y, int color) {
+        ctx.drawText(textRenderer, text, centerX - textRenderer.getWidth(text) / 2, y, color, false);
+    }
+    
     public void draw(DrawContext ctx, int x, int y) {
         super.draw(ctx,x,y);
         if (WaigConfig.getHudPoIMode() == HudPoIMode.DISTANCE) {

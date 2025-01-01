@@ -24,25 +24,20 @@ public class WaigConfig {
 
     private static final String KEY_HUD_SHOW_MODE = "hud-show-mode";
     private static final String KEY_HUD_POI_MODE = "hud-poi-mode";
+    private static final String KEY_HUD_FOV_MODE = "hud-fov-mode";
     private static final String KEY_COMPASS_ITEMS = "compass-items";
     private static final String DEFAULT_COMPASS_ID = "minecraft:compass, minecraft:recovery_compass, minecraft:filled_map";
 
     private static HudShowMode hudShowMode = HudShowMode.ALWAYS;
     private static HudPoIMode hudPoIMode = HudPoIMode.ICON;
+    private static HudFoVMode hudFoVMode = HudFoVMode.PLAYER;
 
     private static Set<Item> compassItems = Set.of(Items.COMPASS, Items.RECOVERY_COMPASS);
 
-    public static HudShowMode getHudShowMode() {
-        return hudShowMode;
-    }
-
-    public static HudPoIMode getHudPoIMode() {
-        return hudPoIMode;
-    }
-
-    public static Set<Item> getCompassItems() {
-        return compassItems;
-    }
+    public static HudShowMode getHudShowMode() { return hudShowMode; }
+    public static HudPoIMode getHudPoIMode() { return hudPoIMode; }
+    public static HudFoVMode getHudFoVMode() { return hudFoVMode; }
+    public static Set<Item> getCompassItems() { return compassItems; }
 
     private static <T extends Enum<T>> boolean readEnum(String input, String value, String key, T defaultValue, Consumer<T> func) {
         if (!input.equals(key)) return true;
@@ -84,6 +79,7 @@ public class WaigConfig {
 
                 readEnum(key, value, KEY_HUD_SHOW_MODE, HudShowMode.ALWAYS, x -> WaigConfig.hudShowMode = x);
                 readEnum(key, value, KEY_HUD_POI_MODE, HudPoIMode.ICON, x -> WaigConfig.hudPoIMode = x);
+                readEnum(key, value, KEY_HUD_FOV_MODE, HudFoVMode.PLAYER, x -> WaigConfig.hudFoVMode = x);
 
                 if (key.equals(KEY_COMPASS_ITEMS)) {
                     String[] potentialItems = value.toLowerCase().split(",");
@@ -131,7 +127,6 @@ public class WaigConfig {
         Path filePath = Path.of(CONFIG_FILE);
         try {
             Files.write(filePath, List.of(new String[] {
-                    "# WAIG config file",
                     "",
                     "# hud show mode, defaults to " + HudShowMode.ALWAYS.name().toLowerCase(),
                     "# possible values are: " + Arrays.toString(HudShowMode.values()).toLowerCase(),
@@ -140,6 +135,10 @@ public class WaigConfig {
                     "# hud point of interest mode, defaults to " + HudPoIMode.ICON.name().toLowerCase(),
                     "# possible values are: " + Arrays.toString(HudPoIMode.values()).toLowerCase(),
                     KEY_HUD_POI_MODE + " = " + HudPoIMode.ICON.name().toLowerCase(),
+                    "",
+                    "# hud field of view mode, defaults to " + HudFoVMode.PLAYER.name().toLowerCase(),
+                    "# possible values are: " + Arrays.toString(HudFoVMode.values()).toLowerCase(),
+                    KEY_HUD_FOV_MODE + " = " + HudFoVMode.PLAYER.name().toLowerCase(),
                     "",
                     "# list of valid compass items, defaults to " + DEFAULT_COMPASS_ID,
                     "# use the namespaced identifiers of items and use a colon as a separator",

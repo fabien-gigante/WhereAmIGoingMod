@@ -42,6 +42,9 @@ This mod is client side only.
   the HUD.
 
 **FORK Additional Configuration:**
+- `hud-fov-mode`: config key to control how wide is the hud
+  - if set to `player` it will match the player's FoV
+  - if set to `fixed` it will have a constant width
 - `hud-poi-mode`: config key to control how targets and points of interest are shown (default: `icon`)
   - if set to `hidden` they will not be shown on the compass HUD
   - if set to `icon` they will appear has icons on the compass HUD

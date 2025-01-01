@@ -98,7 +98,10 @@ public class CompassHud implements HudRenderCallback {
 		int posY = 3 + bossBarCount * 19;
 		for (Marker marker : Marker.HATCH_MARKS)	marker.draw(drawContext, posY);
 		for (Marker marker : Marker.CARDINAL_MARKS)	marker.draw(drawContext, posY);
+        drawContext.getMatrices().push();
+        drawContext.getMatrices().translate(0, 0, 200);
 		for (Marker marker : markers)				marker.draw(drawContext, posY);
+        drawContext.getMatrices().pop();
 	}
 
 	public static void setVisible(boolean visible) {

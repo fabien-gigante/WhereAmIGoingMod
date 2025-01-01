@@ -19,7 +19,7 @@ public class MapMarker extends DistanceMarker {
     }
 
     public void draw(DrawContext ctx, int x, int y) {
-        ctx.drawSpriteStretched(RenderLayer::getGuiTexturedOverlay, sprite, x-4, y, 8, 8);
+        ctx.drawSpriteStretched(RenderLayer::getGuiTextured, sprite, x-4, y, 8, 8);
         super.draw(ctx,x,y);
     }
 }

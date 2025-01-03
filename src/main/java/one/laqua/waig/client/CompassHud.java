@@ -2,7 +2,6 @@ package one.laqua.waig.client;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -11,21 +10,13 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LodestoneTrackerComponent;
-import net.minecraft.component.type.MapDecorationsComponent;
-import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.CompassItem;
 import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.map.MapState;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import one.laqua.waig.client.config.HudPoIMode;
 import one.laqua.waig.client.config.WaigConfig;
@@ -42,7 +33,7 @@ public class CompassHud implements HudRenderCallback {
 	private static boolean visible = true;
 
 
-	private Stream<ItemStack> getItemsToCheck(ClientPlayerEntity p) {
+	private Stream<ItemStack> getItemsToCheck(PlayerEntity p) {
 		switch (WaigConfig.getHudShowMode()) {
 			case INVENTORY:
 				return ((CombinedInventoryAccessor) p.getInventory()).getCombinedInventory().stream().flatMap(e -> e.stream());
@@ -54,15 +45,13 @@ public class CompassHud implements HudRenderCallback {
 		}
 	}
 
-	private static void addMarker(List<Marker> markers, Marker marker, Entity entity, Vec3d pos) { markers.add(marker.at(entity, pos)); }
-	private static void addMarker(List<Marker> markers, Marker marker, Entity entity, Optional<GlobalPos> pos) {
-		if (pos.isPresent() && pos.get().dimension() == entity.getWorld().getRegistryKey())
-			markers.add(marker.at(entity, pos.get().pos()));
+	private static void addMarker(List<Marker> markers, Marker marker) {
+		if (marker.isVisible())	markers.add(marker);
 	}
 
 	private List<Marker> getTargetMarkers() {
 		List<Marker> markers = new ArrayList<Marker>();
-		ClientPlayerEntity player = client.player;
+		PlayerEntity player = client.player;
 		Stream<ItemStack> items = getItemsToCheck(player);
 		if (items == null) return markers;
 		List<ItemStack> matched = items.filter(item -> compass_stacks.contains(item.getItem())).toList();
@@ -70,32 +59,15 @@ public class CompassHud implements HudRenderCallback {
 		if (WaigConfig.getHudPoIMode() == HudPoIMode.HIDDEN) return markers;
 		if (compass_stacks.contains(Items.COMPASS))
 			matched.stream().filter(item -> item.getItem() instanceof CompassItem).forEach(compass -> {
-				if (compass.contains(DataComponentTypes.LODESTONE_TRACKER)) {
-					LodestoneTrackerComponent tracker = compass.get(DataComponentTypes.LODESTONE_TRACKER);
-					if (tracker.tracked()) addMarker(markers, new LodestoneMarker(), player, tracker.target());
-				} else
-					addMarker(markers, new SpawnMarker(), player, Optional.of(new GlobalPos(World.OVERWORLD, player.getWorld().getSpawnPos())));
+				if (LodestoneMarker.check(compass)) addMarker(markers, new LodestoneMarker(player, compass));
+				else addMarker(markers, new SpawnMarker(player));
 			});
 		if (compass_stacks.contains(Items.RECOVERY_COMPASS))
 			if (matched.stream().anyMatch(item -> item.getItem() == Items.RECOVERY_COMPASS))
-				addMarker(markers, new DeathMarker(), player, player.getLastDeathPos());
-
+				addMarker(markers, new DeathMarker(player));
 		if (compass_stacks.contains(Items.FILLED_MAP))
 			matched.stream().filter(item -> item.getItem() instanceof FilledMapItem).forEach(map -> {
-				MapState mapState = FilledMapItem.getMapState(map, client.world);
-				if (mapState.dimension != player.getWorld().getRegistryKey()) return;
-				// Use component when possible to accurately retrieve the main decoration positions
-				MapDecorationsComponent mapDecorationsComponent = map.getOrDefault(DataComponentTypes.MAP_DECORATIONS, MapDecorationsComponent.DEFAULT);
-				for(var decoration : mapDecorationsComponent.decorations().values())
-					addMarker(markers, new MapMarker(decoration.type()), player, new Vec3d(decoration.x(),0,decoration.z()));
-				// Use map state to approximate secondary decoration positions in world from their placement on the map
-				for(var decoration: mapState.getDecorations()) {
-					if (!MapMarker.isSecondary(decoration.type())) continue;
-					int scale = 1 << mapState.scale;
-					double x = (decoration.x() - 0.5f) / 2f * scale + mapState.centerX;
-					double z = (decoration.z() - 0.5f) / 2f * scale + mapState.centerZ;
-					addMarker(markers, new MapMarker(decoration), player, new Vec3d(x,0,z));
-				}
+				MapMarker.enumerate(player, map).forEach(marker -> addMarker(markers, marker) );
 			});
 		return markers;
 	}

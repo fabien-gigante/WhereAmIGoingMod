@@ -71,7 +71,7 @@ public class MapMarker extends TargetMarker {
 
     public static Stream<MapMarker> enumerate(PlayerEntity player, ItemStack map) {
         MapState mapState = FilledMapItem.getMapState(map, client.world);
-        if (mapState.dimension != player.getWorld().getRegistryKey()) return Stream.empty();
+        if (mapState == null || mapState.dimension != player.getWorld().getRegistryKey()) return Stream.empty();
         MapDecorationsComponent mapDecorationsComponent = map.getOrDefault(DataComponentTypes.MAP_DECORATIONS, MapDecorationsComponent.DEFAULT);
         return Stream.concat(
             // Use component when possible to accurately retrieve the main decoration positions

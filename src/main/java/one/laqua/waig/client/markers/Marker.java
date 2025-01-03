@@ -43,10 +43,6 @@ public abstract class Marker {
         this.draw(ctx, x, y);
     }
 
-    protected void move(PlayerEntity player, Vec3d pos) {
-        Vec3d vec =  pos.subtract(player.getPos());
-        this.yaw = (float) (Math.atan2(vec.getZ(), vec.getX()) * MathHelper.DEGREES_PER_RADIAN) - 90;
-    }
     public boolean isVisible() { return true; }
 
     public abstract void draw(DrawContext ctx, int x, int y);
@@ -77,21 +73,20 @@ class TargetMarker extends Marker {
     protected TargetMarker(int color, float yaw) { super(color, yaw); }
     protected TargetMarker(int color) { super(color); }
 
-    protected void move(PlayerEntity player, Vec3d pos) {
-        super.move(player, pos);
-        this.dist = (float) pos.subtract(player.getPos()).horizontalLength();
-    }
     protected void move(PlayerEntity player, Vec3d pos, RegistryKey<World> dimension) {
-        if (player.getWorld().getRegistryKey() == dimension) move(player, pos); else Hide();
+        if (player.getWorld().getRegistryKey() != dimension) { hide(); return; }
+        Vec3d vec =  pos.subtract(player.getPos());
+        this.yaw = (float) (Math.atan2(vec.getZ(), vec.getX()) * MathHelper.DEGREES_PER_RADIAN) - 90;
+        this.dist = (float) vec.horizontalLength();
     }
     protected void move(PlayerEntity player, BlockPos pos, RegistryKey<World> dimension) {
         move(player, Vec3d.ofCenter(pos), dimension);
     }
     protected void move(PlayerEntity player, Optional<GlobalPos> pos) {
-        if (pos.isPresent()) move(player, pos.get().pos(), pos.get().dimension()); else Hide();
+        if (pos.isPresent()) move(player, pos.get().pos(), pos.get().dimension()); else hide();
     }
     public boolean isVisible() { return !Float.isNaN(dist); }
-    protected void Hide() { dist = Float.NaN; }
+    protected void hide() { dist = Float.NaN; }
 
     public void draw(DrawContext ctx, int x, int y) {
         if (WaigConfig.getHudPoIMode() != HudPoIMode.DISTANCE || !Float.isFinite(dist)) return;

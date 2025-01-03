@@ -29,9 +29,7 @@ public class CompassHud implements HudRenderCallback {
 
 	private static final MinecraftClient client = MinecraftClient.getInstance();
 	private final Set<Item> compass_stacks = WaigConfig.getCompassItems();
-
 	private static boolean visible = true;
-
 
 	private Stream<ItemStack> getItemsToCheck(PlayerEntity p) {
 		switch (WaigConfig.getHudShowMode()) {

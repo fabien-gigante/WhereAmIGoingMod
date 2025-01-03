@@ -5,6 +5,6 @@ import net.minecraft.entity.player.PlayerEntity;
 public class DeathMarker extends TextMarker { 
     public DeathMarker(PlayerEntity player) { 
         super("☠", 0xffffffff);
-         move(player, player.getLastDeathPos()); 
+        move(player, player.getLastDeathPos()); 
     } 
 }

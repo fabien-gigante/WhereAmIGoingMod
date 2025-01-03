@@ -9,7 +9,7 @@ public class LodestoneMarker extends TextMarker {
      public LodestoneMarker(PlayerEntity player, ItemStack compass) {
         super("✠", 0xff8060e0);
         LodestoneTrackerComponent tracker = compass.get(DataComponentTypes.LODESTONE_TRACKER);
-        if (tracker!=null && tracker.tracked()) move(player, tracker.target()); else Hide();
+        if (tracker!=null && tracker.tracked()) move(player, tracker.target()); else hide();
      }
      public static boolean check(ItemStack compass) { return compass.contains(DataComponentTypes.LODESTONE_TRACKER); }
 }

@@ -22,6 +22,7 @@ import net.minecraft.item.FilledMapItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.map.MapState;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -79,12 +80,22 @@ public class CompassHud implements HudRenderCallback {
 			if (matched.stream().anyMatch(item -> item.getItem() == Items.RECOVERY_COMPASS))
 				addMarker(markers, new DeathMarker(), player, player.getLastDeathPos());
 
-		if (compass_stacks.contains(Items.FILLED_MAP) && player.getWorld().getRegistryKey()==World.OVERWORLD)
+		if (compass_stacks.contains(Items.FILLED_MAP))
 			matched.stream().filter(item -> item.getItem() instanceof FilledMapItem).forEach(map -> {
+				MapState mapState = FilledMapItem.getMapState(map, client.world);
+				if (mapState.dimension != player.getWorld().getRegistryKey()) return;
+				// Use component when possible to accurately retrieve the main decoration positions
 				MapDecorationsComponent mapDecorationsComponent = map.getOrDefault(DataComponentTypes.MAP_DECORATIONS, MapDecorationsComponent.DEFAULT);
-				mapDecorationsComponent.decorations().forEach((id, decoration) -> {
+				for(var decoration : mapDecorationsComponent.decorations().values())
 					addMarker(markers, new MapMarker(decoration.type()), player, new Vec3d(decoration.x(),0,decoration.z()));
-				}) ;
+				// Use map state to approximate secondary decoration positions in world from their placement on the map
+				for(var decoration: mapState.getDecorations()) {
+					if (!MapMarker.isSecondary(decoration.type())) continue;
+					int scale = 1 << mapState.scale;
+					double x = (decoration.x() - 0.5f) / 2f * scale + mapState.centerX;
+					double z = (decoration.z() - 0.5f) / 2f * scale + mapState.centerZ;
+					addMarker(markers, new MapMarker(decoration), player, new Vec3d(x,0,z));
+				}
 			});
 		return markers;
 	}

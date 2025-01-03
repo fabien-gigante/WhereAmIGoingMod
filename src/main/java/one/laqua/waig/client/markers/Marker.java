@@ -59,7 +59,6 @@ class HatchMark extends Marker {
         ctx.drawVerticalLine(x + 1, y1 + 1, y2 + 1, color & 0xff000000);
         ctx.drawVerticalLine(x, y1, y2, color);
     }
-
     public void draw(DrawContext ctx, int x, int y) {
         drawVerticalLineWithShadow(ctx, x, y + (large ? 2 : 4), y + 7, color);
     }
@@ -69,6 +68,10 @@ class TextMarker extends Marker {
     protected String text;
     TextMarker(String text, int color) { this(text, color, 0);}
     TextMarker(String text, int color, float yaw) { super(color, yaw); this.text = text; }
+
+    protected static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, String text, int centerX, int y, int color) {
+        ctx.drawText(textRenderer, text, centerX - textRenderer.getWidth(text) / 2, y, color, false);
+    }
     public void draw(DrawContext ctx, int x, int y) {
         if (text != null) ctx.drawCenteredTextWithShadow(client.textRenderer, text, x, y, color);
     }
@@ -83,10 +86,6 @@ class DistanceMarker extends TextMarker {
         return this;
     }
 
-    protected static void drawCenteredText(DrawContext ctx, TextRenderer textRenderer, String text, int centerX, int y, int color) {
-        ctx.drawText(textRenderer, text, centerX - textRenderer.getWidth(text) / 2, y, color, false);
-    }
-    
     public void draw(DrawContext ctx, int x, int y) {
         super.draw(ctx,x,y);
         if (WaigConfig.getHudPoIMode() == HudPoIMode.DISTANCE) {

@@ -59,7 +59,7 @@ public class MapMarker extends TargetMarker {
     }
     protected MapMarker(PlayerEntity player, MapState mapState, Decoration decoration) {
         this(new MapDecoration(decoration.type(), (byte)0, (byte)0, (byte)0, Optional.empty())); 
-        move(player, new Vec3d(decoration.x(),0,decoration.z()), mapState.dimension);
+        move(player, new Vec3d(decoration.x() + 0.5f, 0, decoration.z() + 0.5f), mapState.dimension);
     }
     protected MapMarker(PlayerEntity player, MapState mapState, MapDecoration decoration) {
         this(decoration);

@@ -4,8 +4,7 @@
   "package": "one.laqua.waig.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "BossBarHudAccessor",
-    "CombinedInventoryAccessor"
+    "BossBarHudAccessor"
   ],
   "client": [],
   "injectors": {

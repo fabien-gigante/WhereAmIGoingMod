@@ -21,7 +21,6 @@ import net.minecraft.item.Items;
 import one.laqua.waig.client.config.HudPoIMode;
 import one.laqua.waig.client.config.WaigConfig;
 import one.laqua.waig.mixin.BossBarHudAccessor;
-import one.laqua.waig.mixin.CombinedInventoryAccessor;
 import one.laqua.waig.client.markers.*;
 
 @Environment(EnvType.CLIENT)
@@ -34,7 +33,7 @@ public class CompassHud implements HudRenderCallback {
 	private Stream<ItemStack> getItemsToCheck(PlayerEntity p) {
 		switch (WaigConfig.getHudShowMode()) {
 			case INVENTORY:
-				return ((CombinedInventoryAccessor) p.getInventory()).getCombinedInventory().stream().flatMap(e -> e.stream());
+				return Stream.concat(Stream.of(p.getOffHandStack(), p.getMainHandStack()), p.getInventory().getMainStacks().stream());
 			case HAND:
 				return Stream.of(p.getOffHandStack(), p.getMainHandStack());
 			case ALWAYS:

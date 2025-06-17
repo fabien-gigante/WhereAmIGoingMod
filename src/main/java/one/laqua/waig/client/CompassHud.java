@@ -7,10 +7,11 @@ import java.util.stream.Stream;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.CompassItem;
 import net.minecraft.item.FilledMapItem;
@@ -24,7 +25,7 @@ import one.laqua.waig.mixin.BossBarHudAccessor;
 import one.laqua.waig.client.markers.*;
 
 @Environment(EnvType.CLIENT)
-public class CompassHud implements HudRenderCallback {
+public class CompassHud implements HudElement {
 
 	private static final MinecraftClient client = MinecraftClient.getInstance();
 	private final Set<Item> compass_stacks = WaigConfig.getCompassItems();
@@ -33,7 +34,10 @@ public class CompassHud implements HudRenderCallback {
 	private Stream<ItemStack> getItemsToCheck(PlayerEntity p) {
 		switch (WaigConfig.getHudShowMode()) {
 			case INVENTORY:
-				return Stream.concat(Stream.of(p.getOffHandStack(), p.getMainHandStack()), p.getInventory().getMainStacks().stream());
+				return Stream.concat(
+						p.getInventory().getMainStacks().stream(),
+						EquipmentSlot.VALUES.stream().map(slot -> p.getEquippedStack(slot))
+	                );
 			case HAND:
 				return Stream.of(p.getOffHandStack(), p.getMainHandStack());
 			case ALWAYS:
@@ -70,7 +74,7 @@ public class CompassHud implements HudRenderCallback {
 	}
 
 	@Override
-	public void onHudRender(DrawContext drawContext, RenderTickCounter renderTickCounter) {
+	public void render(DrawContext drawContext, RenderTickCounter renderTickCounter) {
 		if (!visible || client.options.hudHidden || client.player == null) return;
 		List<Marker> markers =  getTargetMarkers();
 		if (markers == null) return;

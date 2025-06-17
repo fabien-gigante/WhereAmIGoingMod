@@ -5,9 +5,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import one.laqua.waig.client.config.WaigConfig;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -30,7 +31,7 @@ public class WaigClient implements ClientModInitializer {
         WaigConfig.readConfigFile();
 
         // register render callback
-        HudRenderCallback.EVENT.register(new CompassHud());
+        HudElementRegistry.addLast(Identifier.of(MOD_ID, "main_compass_layer"), new CompassHud());
 
         // add key binding to toggle visibility of the hud
         KeyBinding binding = KeyBindingHelper.registerKeyBinding(new KeyBinding(

@@ -3,14 +3,12 @@ package one.laqua.waig.client.markers;
 import java.util.Set;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-
 import java.util.Map;
 import java.util.Optional;
 
 import net.minecraft.block.MapColor;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.MapDecorationsComponent;
@@ -93,7 +91,7 @@ public class MapMarker extends TargetMarker {
     }
 
     public void draw(DrawContext ctx, int x, int y) {
-        ctx.drawSpriteStretched(RenderPipelines.GUI_TEXTURED, sprite, x-4, y, 8, 8);
-        super.draw(ctx, x, y);
+        ctx.drawSpriteStretched(RenderLayer::getGuiTextured, sprite, x-4, y, 8, 8);
+        super.draw(ctx,x,y);
     }
 }

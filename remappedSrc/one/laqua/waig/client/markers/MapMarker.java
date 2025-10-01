@@ -23,7 +23,6 @@ import net.minecraft.item.map.MapDecorationType;
 import net.minecraft.item.map.MapDecorationTypes;
 import net.minecraft.item.map.MapState;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.Atlases;
 import net.minecraft.util.math.Vec3d;
 
 public class MapMarker extends TargetMarker { 
@@ -58,7 +57,7 @@ public class MapMarker extends TargetMarker {
 
     protected MapMarker(MapDecoration decoration) {
         super(getColor(decoration.type()));
-        sprite = client.getAtlasManager().getAtlasTexture(Atlases.MAP_DECORATIONS).getSprite(decoration.getAssetId());
+        sprite = client.getMapDecorationsAtlasManager().getSprite(decoration);
     }
     protected MapMarker(PlayerEntity player, MapState mapState, Decoration decoration) {
         this(new MapDecoration(decoration.type(), (byte)0, (byte)0, (byte)0, Optional.empty())); 
@@ -74,7 +73,7 @@ public class MapMarker extends TargetMarker {
 
     public static Stream<MapMarker> enumerate(PlayerEntity player, ItemStack map) {
         MapState mapState = FilledMapItem.getMapState(map, client.world);
-        if (mapState == null || mapState.dimension != player.getEntityWorld().getRegistryKey()) return Stream.empty();
+        if (mapState == null || mapState.dimension != player.getWorld().getRegistryKey()) return Stream.empty();
         MapDecorationsComponent mapDecorationsComponent = map.getOrDefault(DataComponentTypes.MAP_DECORATIONS, MapDecorationsComponent.DEFAULT);
         return Stream.concat(
             // Use component when possible to accurately retrieve the main decoration positions

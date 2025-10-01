@@ -74,8 +74,8 @@ class TargetMarker extends Marker {
     protected TargetMarker(int color) { super(color); }
 
     protected void move(PlayerEntity player, Vec3d pos, RegistryKey<World> dimension) {
-        if (player.getEntityWorld().getRegistryKey() != dimension) { hide(); return; }
-        Vec3d vec =  pos.subtract(player.getEntityPos());
+        if (player.getWorld().getRegistryKey() != dimension) { hide(); return; }
+        Vec3d vec =  pos.subtract(player.getPos());
         this.yaw = (float) (Math.atan2(vec.getZ(), vec.getX()) * MathHelper.DEGREES_PER_RADIAN) - 90;
         this.dist = (float) vec.horizontalLength();
     }

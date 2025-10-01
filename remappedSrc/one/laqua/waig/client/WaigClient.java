@@ -38,7 +38,7 @@ public class WaigClient implements ClientModInitializer {
                 "key.waig.toggle",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F6,
-                KeyBinding.Category.MISC
+                KeyBinding.UI_CATEGORY
         ));
 
         // add response to the keybinding
